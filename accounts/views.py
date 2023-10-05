@@ -1,3 +1,4 @@
+import random
 import pickle as pkl
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, authenticate, login, logout
@@ -6,6 +7,35 @@ from django.contrib import messages
 from .forms import UserRegisterForm, UserLoginForm, HealthRecordForm
 
 User = get_user_model()
+
+recommendation = {
+    "Food Recommendation": [
+        "Control Carbohydrate Intake",
+        "Choose Lean Proteins",
+        "Healthy Fats",
+        "Fiber-Rich Foods",
+        "Balanced Meals",
+        "Regular Meal Times",
+        "Monitor Your Blood Sugar",
+        "Stay Hydrated",
+        "Limit Alcohol Intake",
+        "Individualized Plan"
+        ],
+    "Life style recommendation": [
+        "Regular Physical Activity",
+        "Weight Management",
+        "Balanced Diet",
+        "Regular Blood Sugar Monitoring",
+        "Medication Management",
+        "Stress Management",
+        "Smoking Cessation",
+        "Alcohol in Moderation",
+        "Regular Healthcare Check-ups",
+        "Education and Support",
+        "Foot Care",
+        "Hydration"
+        ]
+}
 
 
 def home(request):
@@ -16,27 +46,42 @@ def home(request):
         form = HealthRecordForm(request.POST)
 
         if form.is_valid():
-            with open('/home/pawan/Drive/lancemeup/django-account-boilerplate/accounts/model/diabetes_disease_prediction.pkl', 'rb') as f:
-                Model = pkl.load(f)
-                
                 Pregnancies = form.cleaned_data['pregnancies']
                 Age = form.cleaned_data['age']
                 Glucose = form.cleaned_data['glucose']
                 SkinThickness = form.cleaned_data['skin_thickness']
                 BMI = form.cleaned_data['bmi']
-                # Insulin = form.cleaned_data['insulin']
+                Insulin = form.cleaned_data['insulin']
+                bp = form.cleaned_data['bp']
+                func = form.cleaned_data['func']
 
-                predication = Model.predict([[Pregnancies, Glucose, SkinThickness, BMI, Age]])
+                model = pkl.load(open('accounts/model/svm_model.pkl', 'rb'))
+                scaler = pkl.load(open('accounts/model/scaler.pkl', 'rb'))
 
-                output = round(predication[0])
+                input_features = [[Pregnancies, Glucose, bp, SkinThickness, Insulin, BMI, func, Age]]
+                input_features = scaler.transform(input_features)
+                prediction = model.predict(input_features)
+
+                if BMI > 30 and prediction == 0:
+                    prediction = 1
 
                 health_record = form.save(commit=False)
                 health_record.user = request.user
-                health_record.output = output
+                health_record.output = prediction
                 health_record.save()
 
-                if output == 1:
-                    messages.success(request, 'Diabetic')
+                if prediction == 1:
+                    # Randomly select two items from Food Recommendation
+                    food_recommendation = random.sample(recommendation["Food Recommendation"], 2)
+
+                    # Randomly select two items from Lifestyle Recommendation
+                    lifestyle_recommendation = random.sample(recommendation["Life style recommendation"], 2)
+
+                    message = "Diabetic\nFood Recommendation: {}\nLife style recommendation: {}".format(
+    ", ".join(food_recommendation),
+    ", ".join(lifestyle_recommendation)
+)
+                    messages.success(request, message)
                 else:
                     messages.success(request, 'Not Diabetic')
     else:
@@ -95,3 +140,5 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('/login')
+
+

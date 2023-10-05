@@ -32,4 +32,4 @@ class UserLoginForm(forms.ModelForm):
 class HealthRecordForm(forms.ModelForm):
     class Meta:
         model = HealthRecord
-        fields = ['pregnancies', 'age', 'glucose', 'skin_thickness', 'bmi', 'insulin']
+        fields = ['pregnancies', 'age', 'glucose', 'skin_thickness', 'bmi', 'insulin', 'bp', 'func']

@@ -1,9 +1,7 @@
-import random
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
-# https://stackoverflow.com/questions/45621300/auto-generating-username-when-adding-a-user-with-django
 def set_username(sender, instance, **kwargs):
     if not instance.username:
         username = (instance.first_name + "." + instance.last_name).lower()
@@ -86,10 +84,8 @@ class HealthRecord(models.Model):
     age = models.PositiveIntegerField()
     glucose = models.PositiveIntegerField()
     skin_thickness = models.PositiveIntegerField()
-    bmi = models.DecimalField(max_digits=5, decimal_places=2)  # Using DecimalField for BMI
+    bmi = models.DecimalField(max_digits=5, decimal_places=2)
+    func = models.DecimalField(max_digits=5, decimal_places=2)
     insulin = models.PositiveIntegerField()
+    bp = models.PositiveIntegerField()
     output = models.PositiveIntegerField()
-
-    # def save(self, *args, **kwargs):
-    #     self.output = random.randint(0, 1)
-    #     super().save(*args, **kwargs)
