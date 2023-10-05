@@ -9,6 +9,9 @@ User = get_user_model()
 
 
 def home(request):
+    if request.user.is_anonymous:
+        return redirect('/login')
+    
     if request.method == 'POST':
         form = HealthRecordForm(request.POST)
 
@@ -23,13 +26,16 @@ def home(request):
                 BMI = form.cleaned_data['bmi']
                 # Insulin = form.cleaned_data['insulin']
 
-                Model.predict([[Pregnancies, Glucose, SkinThickness, BMI, Age]])
+                predication = Model.predict([[Pregnancies, Glucose, SkinThickness, BMI, Age]])
+
+                output = round(predication[0])
 
                 health_record = form.save(commit=False)
                 health_record.user = request.user
+                health_record.output = output
                 health_record.save()
 
-                if health_record.output == 1:
+                if output == 1:
                     messages.success(request, 'Diabetic')
                 else:
                     messages.success(request, 'Not Diabetic')

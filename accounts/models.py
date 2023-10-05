@@ -90,6 +90,6 @@ class HealthRecord(models.Model):
     insulin = models.PositiveIntegerField()
     output = models.PositiveIntegerField()
 
-    def save(self, *args, **kwargs):
-        self.output = random.randint(0, 1)
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.output = random.randint(0, 1)
+    #     super().save(*args, **kwargs)
