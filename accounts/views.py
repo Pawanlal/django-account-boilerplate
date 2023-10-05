@@ -28,10 +28,9 @@ def home(request):
 
                 health_record = form.save(commit=False)
                 health_record.user = request.user
-                health_record.output = output
                 health_record.save()
 
-                if output == 1:
+                if health_record.output == 1:
                     messages.success(request, 'Diabetic')
                 else:
                     messages.success(request, 'Not Diabetic')
