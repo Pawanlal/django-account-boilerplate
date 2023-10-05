@@ -23,8 +23,7 @@ def home(request):
                 BMI = form.cleaned_data['bmi']
                 # Insulin = form.cleaned_data['insulin']
 
-                prediction = Model.predict([[Pregnancies, Glucose, SkinThickness, BMI, Age]])
-                output = round(prediction[0])
+                Model.predict([[Pregnancies, Glucose, SkinThickness, BMI, Age]])
 
                 health_record = form.save(commit=False)
                 health_record.user = request.user
