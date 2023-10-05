@@ -1,13 +1,63 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 
-{% block content %}
-<h1>Home Page</h1>
-
+<div>
     {% if request.user.is_authenticated %}
-        <p>Logged in as - {{ request.user.email }}</p>
-        <a href="{% url 'accounts:logout' %}">Logout</a>
+<h1>Welcome {{ request.user.email }}</h1>
+
+{% if health_records %}
+<table>
+    <tr>
+        <th>Pregnancies</th>
+        <th>Age</th>
+        <th>Glucose</th>
+        <th>Skin Thickness</th>
+        <th>Insulin</th>
+        <th>Output</th>
+    </tr>
+    {% for health_record in health_records %}
+    <tr>
+        <td>{{ health_record.pregnancies }}</td>
+        <td>{{ health_record.age }}</td>
+        <td>{{ health_record.glucose }}</td>
+        <td>{{ health_record.skin_thickness }}</td>
+        <td>{{ health_record.insulin }}</td>
+        <td>
+    {% if health_record.output is 1 %}
+    Diabetic
     {% else %}
-        <a href="{% url 'accounts:login' %}">Login</a> ||
-        <a href="{% url 'accounts:register' %}">Create New User</a>
+    Not Diabetic
     {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+    
+{% else %}
+<p>No health records found.</p>
+{% endif %}
+
+
+{% else %}
+<h1>Please login to continue.</h1>
+{% endif %} 
+</div>
+
+
+<p>Check Diabetes</p>
+
+<form action="/" method="POST">
+    {% csrf_token %} {{ form.as_p }}
+    <button type="submit">Login</button>
+
+    {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+  </form>
+
 {% endblock content %}

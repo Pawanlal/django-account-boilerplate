@@ -1,32 +1,55 @@
-import json
-import requests
+import pickle as pkl
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, authenticate, login, logout
+from django.contrib import messages
 
-from .forms import UserRegisterForm, UserLoginForm
+from .forms import UserRegisterForm, UserLoginForm, HealthRecordForm
 
 User = get_user_model()
 
 
 def home(request):
-    return render(request, 'accounts/home.html')
+    if request.method == 'POST':
+        form = HealthRecordForm(request.POST)
+
+        if form.is_valid():
+            with open('/home/pawan/Drive/lancemeup/django-account-boilerplate/accounts/model/diabetes_disease_prediction.pkl', 'rb') as f:
+                Model = pkl.load(f)
+                
+                Pregnancies = form.cleaned_data['pregnancies']
+                Age = form.cleaned_data['age']
+                Glucose = form.cleaned_data['glucose']
+                SkinThickness = form.cleaned_data['skin_thickness']
+                BMI = form.cleaned_data['bmi']
+                # Insulin = form.cleaned_data['insulin']
+
+                prediction = Model.predict([[Pregnancies, Glucose, SkinThickness, BMI, Age]])
+                output = round(prediction[0])
+
+                health_record = form.save(commit=False)
+                health_record.user = request.user
+                health_record.output = output
+                health_record.save()
+
+                if output == 1:
+                    messages.success(request, 'Diabetic')
+                else:
+                    messages.success(request, 'Not Diabetic')
+    else:
+        form = HealthRecordForm()
+    
+     #list all the health records
+    health_records = request.user.healthrecord_set.all()
+    context = {'health_records': health_records, "form": form}
+
+    return render(request, 'accounts/home.html', context)
 
 
 def register(request):
     context = {}
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
-        client_key = request.POST['g-recaptcha-response']
-        secret_key = '6Lf0Yf4ZAAAAAO2lS3tsx-ZXnowy3qLbW0N-xq5l'
-        captchadata = {
-            'secret': secret_key,
-            'response': client_key
-        }
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captchadata)
-        response = json.loads(r.text)
-        verify = response['success']
-        print('Your success is: ', verify)
-        if verify and form.is_valid():
+        if form.is_valid():
             user = User.objects.create_user(
                 first_name=form.cleaned_data['first_name'],
                 last_name=form.cleaned_data['last_name'],
@@ -54,7 +77,7 @@ def login_user(request):
                 login(request, user)
                 return redirect('/')
             else:
-                print('Invalid Credentials')
+                print('Invalid credentials')
     elif request.method == 'GET':
         if request.user.is_authenticated:
             return redirect('/')

@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model, authenticate
 
+from .models import HealthRecord
+
 User = get_user_model()
 
 
@@ -25,3 +27,9 @@ class UserLoginForm(forms.ModelForm):
             password = self.cleaned_data['password']
             if not authenticate(email=email, password=password):
                 raise forms.ValidationError('Invalid Login')
+
+
+class HealthRecordForm(forms.ModelForm):
+    class Meta:
+        model = HealthRecord
+        fields = ['pregnancies', 'age', 'glucose', 'skin_thickness', 'bmi', 'insulin']

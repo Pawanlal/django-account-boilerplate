@@ -77,3 +77,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 models.signals.pre_save.connect(set_username, sender=User)
+
+
+class HealthRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    pregnancies = models.PositiveIntegerField()
+    age = models.PositiveIntegerField()
+    glucose = models.PositiveIntegerField()
+    skin_thickness = models.PositiveIntegerField()
+    bmi = models.DecimalField(max_digits=5, decimal_places=2)  # Using DecimalField for BMI
+    insulin = models.PositiveIntegerField()
+    output = models.PositiveIntegerField()
