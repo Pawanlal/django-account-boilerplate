@@ -1,54 +1,109 @@
 {% extends 'base.html' %} {% block content %}
 
-<div>
+<div
+class="container"
+>
     {% if request.user.is_authenticated %}
-<h1>Welcome {{ request.user.email }}</h1>
 
-{% if health_records %}
-<table>
-    <tr>
-        <th>Pregnancies</th>
-        <th>Age</th>
-        <th>Glucose</th>
-        <th>Skin Thickness</th>
-        <th>Insulin</th>
-        <th>Output</th>
-    </tr>
-    {% for health_record in health_records %}
-    <tr>
-        <td>{{ health_record.pregnancies }}</td>
-        <td>{{ health_record.age }}</td>
-        <td>{{ health_record.glucose }}</td>
-        <td>{{ health_record.skin_thickness }}</td>
-        <td>{{ health_record.insulin }}</td>
-        <td>
-    {% if health_record.output is 1 %}
-    Diabetic
-    {% else %}
-    Not Diabetic
-    {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<p class="d-flex justify-content-center align-items-center flex-1">
+    Welcome {{ request.user.email }}.
+</p>
 
+<div
+class="d-flex  flex-1 gap-3 flex-column"
+>
+
+<div >
+    {% if health_records %}
+    <table class="table table-striped">
+       <thead>
+        <tr>
+            <th>Pregnancies</th>
+            <th>Age</th>
+            <th>Glucose</th>
+            <th>Skin Thickness</th>
+            <th>Insulin</th>
+            <th>Output</th>
+        </tr>
+       </thead>
+       <tbody>
+        {% for health_record in health_records %}
+        <tr>
+            <td>{{ health_record.pregnancies }}</td>
+            <td>{{ health_record.age }}</td>
+            <td>{{ health_record.glucose }}</td>
+            <td>{{ health_record.skin_thickness }}</td>
+            <td>{{ health_record.insulin }}</td>
+            <td>
+        {% if health_record.output is 1 %}
+        Diabetic
+        {% else %}
+        Not Diabetic
+        {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+       </tbody>
+    </table>
     
-{% else %}
-<p>No health records found.</p>
-{% endif %}
+        
+    {% else %}
+    <p>No health records found.</p>
+    {% endif %}
+    
+    
+    {% else %}
+    <h1>Please login to continue.</h1>
+    {% endif %} 
 
-
-{% else %}
-<h1>Please login to continue.</h1>
-{% endif %} 
 </div>
 
+<div
+>
 
-<p>Check Diabetes</p>
+<h1 class="h3 mb-3 font-weight-normal">Check Diabetes</h1>
 
 <form action="/" method="POST">
-    {% csrf_token %} {{ form.as_p }}
-    <button type="submit">Login</button>
+    {% csrf_token %} 
+    
+    <div
+class="row"    
+    >
+    
+    {% for field in form %}
+    <div 
+    
+    class="form-group my-2 col-md-6 col-sm-12 col-lg-4 col-xl-3 col-xxl-2"
+    
+    >
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        
+        <input
+        type="{{ field.field.widget.input_type }}"
+        class="form-control"
+        id="{{ field.id_for_label }}"
+        aria-describedby="{{ field.id_for_label }}"
+        placeholder="{{ field.label }}"
+        name="{{ field.name }}"
+        />
+        
+        {% if field.help_text %}
+        
+        <small id="{{ field.id_for_label }}" class="form-text text-muted"
+        >{{ field.help_text }}</small
+        >
+        {% endif %}
+    </div>
+        
+        {% endfor %}
+    
+    </div>
+
+    
+    
+    <button type="submit"
+    class="btn btn-lg btn-primary btn-block mt-2"
+    >Login</button>
 
     {% if messages %}
 <ul class="messages">
@@ -59,5 +114,9 @@
 {% endif %}
 
   </form>
+</div>
+
+
+</div>
 
 {% endblock content %}
